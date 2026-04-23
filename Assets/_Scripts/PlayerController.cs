@@ -30,6 +30,15 @@ public class PlayerController : MonoBehaviour
     private float dashTime;
     private float lastDashTime;
 
+    [Header("Realm Swap Settings")]
+    [Tooltip("Requires a Button action (e.g., Y/Triangle)")]
+    public InputActionReference swapAction;
+    public GameObject variantA;
+    public GameObject variantB;
+    public GameObject blackAndWhiteVolume;
+    
+    private bool isAlternateRealm = false;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -45,6 +54,10 @@ public class PlayerController : MonoBehaviour
         // Subscribe to Jump and Dash events
         jumpAction.action.performed += OnJump;
         dashAction.action.performed += OnDash;
+
+        // Swap characters
+        swapAction.action.Enable();
+        swapAction.action.performed += OnSwap;
     }
 
     void OnDisable()
@@ -57,6 +70,10 @@ public class PlayerController : MonoBehaviour
         // Unsubscribe from events
         jumpAction.action.performed -= OnJump;
         dashAction.action.performed -= OnDash;
+
+        // Swap
+        swapAction.action.Disable();
+        swapAction.action.performed -= OnSwap;
     }
 
     void Update()
@@ -130,5 +147,18 @@ public class PlayerController : MonoBehaviour
             
             velocity.y = 0f; // Neutralize gravity/jump momentum during the dash
         }
+    }
+
+    private void OnSwap(InputAction.CallbackContext context)
+    {
+        // Toggle the boolean
+        isAlternateRealm = !isAlternateRealm;
+
+        // Toggle the visual models
+        if (variantA != null) variantA.SetActive(!isAlternateRealm);
+        if (variantB != null) variantB.SetActive(isAlternateRealm);
+
+        // Toggle the black and white screen effect
+        if (blackAndWhiteVolume != null) blackAndWhiteVolume.SetActive(isAlternateRealm);
     }
 }
