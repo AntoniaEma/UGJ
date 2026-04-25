@@ -83,13 +83,15 @@ public class SlidePuzzleTile : MonoBehaviour
             appliedTexture = true;
         }
 
-        if (!appliedTexture)
-            Debug.LogWarning($"SlidePuzzleTile '{name}': the material '{mat.name}' uses shader " +
-                             $"'{mat.shader.name}' which has no _BaseMap or _MainTex property. " +
-                             "Change the shader to URP/Lit or Universal Render Pipeline/Unlit.", this);
+        // Force the base color to white so the texture isn't multiplied to black.
+        // URP/Lit uses _BaseColor; Built-in Standard uses _Color.
+        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+        if (mat.HasProperty("_Color"))     mat.SetColor("_Color",     Color.white);
 
-        Debug.Log($"[SlidePuzzle] Tile {index} → renderer: '{faceRenderer.gameObject.name}' " +
-                  $"| shader: '{mat.shader.name}' | textureApplied: {appliedTexture}", this);
+        if (!appliedTexture)
+            Debug.LogWarning($"SlidePuzzleTile '{name}': the material uses shader '{mat.shader.name}' " +
+                             "which has no _BaseMap or _MainTex property. " +
+                             "Change the shader to Universal Render Pipeline/Lit or Unlit.", this);
 
         faceRenderer.material = mat;
     }
