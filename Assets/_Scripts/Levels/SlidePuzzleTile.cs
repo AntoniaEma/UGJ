@@ -10,6 +10,7 @@ public class SlidePuzzleTile : MonoBehaviour
     private Vector3 targetPos;
     private bool isSliding;
     private Action onSlideComplete;
+    private GameObject imageFace; // reference kept so we can show/hide it
 
     // Called by SlidePuzzle immediately after Instantiate.
     public void Init(int index, Texture2D image, int gridSize,
@@ -84,7 +85,12 @@ public class SlidePuzzleTile : MonoBehaviour
         Destroy(face.GetComponent<Collider>());
 
         face.GetComponent<Renderer>().material = mat;
+        imageFace = face;
+        imageFace.SetActive(false); // hidden by default; shown only in rabbit form
     }
+
+    public void ShowImageFace() { if (imageFace != null) imageFace.SetActive(true); }
+    public void HideImageFace() { if (imageFace != null) imageFace.SetActive(false); }
 
     // Instant repositioning used during shuffle setup (no animation).
     public void Teleport(Vector3 pos)

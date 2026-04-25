@@ -170,6 +170,9 @@ public class PlayerController : MonoBehaviour
             //Level 2 World switch triggers
             // StatueController.instance.EnableAllStatues();
             // RabbitPathwaysManager.instance.DisableWalls();
+
+            //Slide puzzle — reveal image in rabbit form
+            SlidePuzzle.instance?.ShowImages();
         }
         else
         {
@@ -180,6 +183,9 @@ public class PlayerController : MonoBehaviour
             //Level 2 World switch triggers
             // StatueController.instance.DisableAllStatues();
             // RabbitPathwaysManager.instance.EnableWalls();
+
+            //Slide puzzle — hide image in magician form
+            SlidePuzzle.instance?.HideImages();
         }
 
         if (variantA != null) variantA.SetActive(!isAlternateRealm);

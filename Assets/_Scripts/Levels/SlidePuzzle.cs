@@ -5,6 +5,12 @@ using UnityEngine.InputSystem;
 
 public class SlidePuzzle : Level
 {
+    public static SlidePuzzle instance { get; private set; }
+
+    void Awake()
+    {
+        instance = this;
+    }
     [Header("Puzzle Settings")]
     [SerializeField] private int gridSize = 3;
     [SerializeField] private float tileSize = 1f;
@@ -57,6 +63,7 @@ public class SlidePuzzle : Level
         InitGrid();
         SpawnTiles();
         Shuffle();
+        HideImages(); // images hidden in magician form; revealed only in rabbit form
     }
 
     void Update()
@@ -208,6 +215,18 @@ public class SlidePuzzle : Level
     {
         yield return new WaitForSeconds(0.5f);
         UnlockLevel();
+    }
+
+    // ── Realm Visibility ────────────────────────────────────────────────────
+
+    public void ShowImages()
+    {
+        foreach (SlidePuzzleTile t in tiles) t.ShowImageFace();
+    }
+
+    public void HideImages()
+    {
+        foreach (SlidePuzzleTile t in tiles) t.HideImageFace();
     }
 
     // ── Level Overrides ──────────────────────────────────────────────────────
