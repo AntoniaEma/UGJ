@@ -110,17 +110,16 @@ public class SlidePuzzle : Level
 
     // ── Slot Helpers ────────────────────────────────────────────────────────
 
-    // Converts a grid slot index to a world position aligned to puzzleOrigin's
-    // local right/forward axes so the board can be rotated in the scene.
+    // Converts a grid slot index to a world position.
+    // Uses TransformPoint so that scaling puzzleOrigin uniformly scales the whole board.
     private Vector3 SlotToWorldPos(int slot)
     {
         float step = tileSize + tileSpacing;
         float halfExtent = (gridSize - 1) * step * 0.5f;
         int row = slot / gridSize;
         int col = slot % gridSize;
-        return puzzleOrigin.position
-             + puzzleOrigin.right   * (col * step - halfExtent)
-             + puzzleOrigin.forward * (row * step - halfExtent);
+        Vector3 localPos = new Vector3(col * step - halfExtent, 0f, row * step - halfExtent);
+        return puzzleOrigin.TransformPoint(localPos);
     }
 
     private List<int> GetAdjacentFilledSlots(int slot)
