@@ -46,6 +46,7 @@ public class SlidePuzzle : Level
 
     private bool isSolved = false;
     private bool tileIsSliding = false;
+    private bool canInteract = true; // true in magician form, false in rabbit form
     private Transform player;
 
     void Start()
@@ -69,7 +70,7 @@ public class SlidePuzzle : Level
 
     void Update()
     {
-        if (isSolved || tileIsSliding) return;
+        if (isSolved || tileIsSliding || !canInteract) return;
         if (player == null) return;
         if (Vector3.Distance(puzzleOrigin.position, player.position) > interactionRadius) return;
 
@@ -245,16 +246,22 @@ public class SlidePuzzle : Level
         UnlockLevel();
     }
 
-    // ── Realm Visibility ────────────────────────────────────────────────────
+    // ── Realm Visibility & Interaction ──────────────────────────────────────
 
+    // Called when entering rabbit form: show image, block interaction.
     public void ShowImages()
     {
+        canInteract = false;
         foreach (SlidePuzzleTile t in tiles) t.ShowImageFace();
+        foreach (SlidePuzzleTile t in tiles) t.HideHighlight(); // no need for hints while viewing
     }
 
+    // Called when entering magician form: hide image, allow interaction.
     public void HideImages()
     {
+        canInteract = true;
         foreach (SlidePuzzleTile t in tiles) t.HideImageFace();
+        RefreshHighlights(); // restore moveable-tile hints
     }
 
     // ── Level Overrides ──────────────────────────────────────────────────────
