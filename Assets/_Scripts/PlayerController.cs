@@ -174,11 +174,15 @@ public class PlayerController : MonoBehaviour
         {
             StatueController.instance.EnableAllStatues();
             RabbitPathwaysManager.instance.DisableWalls();
+            DancingPuzzle.instance.HideSteps();
+            DancingStatue.instance.Dance();
         }
         else
         {
+            DancingPuzzle.instance.RevealSteps();
             StatueController.instance.DisableAllStatues();
             RabbitPathwaysManager.instance.EnableWalls();
+            DancingStatue.instance.StopDancing();
         }
 
         // Toggle the visual models
