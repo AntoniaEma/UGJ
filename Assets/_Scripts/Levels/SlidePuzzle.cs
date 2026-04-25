@@ -17,6 +17,15 @@ public class SlidePuzzle : Level
     [Tooltip("Empty GameObject that marks the center position and orientation of the puzzle board.")]
     [SerializeField] private Transform puzzleOrigin;
 
+    [Header("Image Orientation")]
+    [Tooltip("Flip the image left-right on each tile.")]
+    [SerializeField] private bool flipImageHorizontal = false;
+    [Tooltip("Flip the image top-bottom on each tile.")]
+    [SerializeField] private bool flipImageVertical = false;
+    [Tooltip("Local Y offset of the image face relative to the tile root. " +
+             "Negative = behind/below the cube body. Positive = above it.")]
+    [SerializeField] private float faceYOffset = -0.55f;
+
     [Header("Level Integration")]
     public GameObject ringPiece;
     public Animator levelWall;
@@ -80,7 +89,7 @@ public class SlidePuzzle : Level
         {
             Vector3 pos = SlotToWorldPos(i);
             SlidePuzzleTile tile = Instantiate(tilePrefab, pos, puzzleOrigin.rotation, puzzleOrigin);
-            tile.Init(i, puzzleImage, gridSize);
+            tile.Init(i, puzzleImage, gridSize, flipImageHorizontal, flipImageVertical, faceYOffset);
             tiles[i] = tile;
         }
     }

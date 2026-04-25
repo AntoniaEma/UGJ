@@ -12,7 +12,9 @@ public class SlidePuzzleTile : MonoBehaviour
     private Action onSlideComplete;
 
     // Called by SlidePuzzle immediately after Instantiate.
-    public void Init(int index, Texture2D image, int gridSize)
+    public void Init(int index, Texture2D image, int gridSize,
+                     bool flipHorizontal = false, bool flipVertical = false,
+                     float faceYOffset = -0.55f)
     {
         TileIndex = index;
 
@@ -24,75 +26,64 @@ public class SlidePuzzleTile : MonoBehaviour
 
         int row = index / gridSize;
         int col = index % gridSize;
-        float tiling  = 1f / gridSize;
-        float uOffset = col * tiling;
-        float vOffset = (gridSize - 1 - row) * tiling; // flip Y: UV origin is bottom-left
+        float tiling = 1f / gridSize;
 
-        // Measure the cube child's actual height so the image face always sits on top.
-        float yOffset = 0.52f; // safe default above a 1-unit cube
+        // Flip the column/row index when requested so the user can correct orientation
+        // from the SlidePuzzle Inspector without touching code.
+        int displayCol = flipHorizontal ? (gridSize - 1 - col) : col;
+        int displayRow = flipVertical   ? (gridSize - 1 - row) : row;
+
+        float uOffset = displayCol * tiling;
+        float vOffset = (gridSize - 1 - displayRow) * tiling; // UV origin is bottom-left in Unity
+
+        Vector2 scale  = new Vector2(tiling, tiling);
+        Vector2 offset = new Vector2(uOffset, vOffset);
+
+        // Find the cube child's renderer to borrow its material (guaranteed to render in this project).
+        Renderer cubeRenderer = null;
         foreach (Renderer cr in GetComponentsInChildren<Renderer>())
         {
             if (cr.gameObject == gameObject) continue;
-            yOffset = cr.bounds.extents.y + 0.02f;
+            cubeRenderer = cr;
             break;
         }
 
-        // Create a flat quad on top of the tile body to display the image.
-        // This is done in code so no manual TopFace setup is needed in the prefab.
-        GameObject face = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        face.name = "ImageFace";
-        face.transform.SetParent(transform, false);
-        face.transform.localPosition = new Vector3(0f, yOffset, 0f); // just above the cube top
-        face.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f); // rotate to face upward
-        face.transform.localScale    = new Vector3(0.95f, 0.95f, 1f);
-        Debug.Log($"[SlidePuzzle] Tile {index} ImageFace created at localY={yOffset:F3}", this);
+        Material mat = cubeRenderer != null
+            ? new Material(cubeRenderer.sharedMaterial)
+            : new Material(Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Texture"));
 
-        // The Quad primitive adds a MeshCollider — remove it so only the cube's
-        // BoxCollider is used for raycasting.
-        Destroy(face.GetComponent<Collider>());
+        mat.color = Color.white;
+        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+        if (mat.HasProperty("_Color"))     mat.SetColor("_Color",     Color.white);
 
-        Renderer r = face.GetComponent<Renderer>();
-        r.material = BuildMaterial(image, tiling, uOffset, vOffset);
-    }
+        mat.mainTexture       = image;
+        mat.mainTextureScale  = scale;
+        mat.mainTextureOffset = offset;
 
-    private static Material BuildMaterial(Texture2D image, float tiling, float uOffset, float vOffset)
-    {
-        // Use Unlit so the image appears at full brightness regardless of scene lighting.
-        // Try URP Unlit first, fall back to Built-in Unlit/Texture.
-        Shader shader = Shader.Find("Universal Render Pipeline/Unlit")
-                     ?? Shader.Find("Unlit/Texture");
-
-        if (shader == null)
-        {
-            Debug.LogError("SlidePuzzleTile: Could not find a usable Unlit shader. " +
-                           "Make sure URP is set up correctly.");
-            return new Material(Shader.Find("Standard"));
-        }
-
-        Material mat    = new Material(shader);
-        Vector2  scale  = new Vector2(tiling, tiling);
-        Vector2  offset = new Vector2(uOffset, vOffset);
-
-        // _BaseMap  = URP Unlit texture slot
-        // _MainTex  = Built-in Unlit/Texture slot
         if (mat.HasProperty("_BaseMap"))
         {
-            mat.SetTexture("_BaseMap", image);
+            mat.SetTexture("_BaseMap",      image);
             mat.SetTextureScale("_BaseMap",  scale);
             mat.SetTextureOffset("_BaseMap", offset);
         }
         if (mat.HasProperty("_MainTex"))
         {
-            mat.SetTexture("_MainTex", image);
+            mat.SetTexture("_MainTex",      image);
             mat.SetTextureScale("_MainTex",  scale);
             mat.SetTextureOffset("_MainTex", offset);
         }
 
-        // Ensure base color is white so it never tints the texture.
-        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
-        if (mat.HasProperty("_Color"))     mat.SetColor("_Color",     Color.white);
+        // Place the image face at the requested local Y offset.
+        // Negative values put it behind/below the cube body; positive puts it above.
+        GameObject face = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        face.name = "ImageFace";
+        face.transform.SetParent(transform, false);
+        face.transform.localPosition = new Vector3(0f, faceYOffset, 0f);
+        face.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f); // always faces +Y (up)
+        face.transform.localScale    = new Vector3(0.95f, 0.95f, 1f);
+        Destroy(face.GetComponent<Collider>());
 
-        return mat;
+        face.GetComponent<Renderer>().material = mat;
     }
 
     // Instant repositioning used during shuffle setup (no animation).
