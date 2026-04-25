@@ -44,7 +44,7 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
     }
 
-    void OnEnable()
+    void EnableMovement()
     {
         // Enable the input actions
         moveAction.action.Enable();
@@ -58,9 +58,14 @@ public class PlayerController : MonoBehaviour
         // Swap characters
         swapAction.action.Enable();
         swapAction.action.performed += OnSwap;
+
+    }
+    void OnEnable()
+    {
+        EnableMovement();
     }
 
-    void OnDisable()
+    void DisableMovement()
     {
         // Disable the input actions to prevent memory leaks
         moveAction.action.Disable();
@@ -75,10 +80,17 @@ public class PlayerController : MonoBehaviour
         swapAction.action.Disable();
         swapAction.action.performed -= OnSwap;
     }
+    void OnDisable()
+    {
+        DisableMovement();
+    }
 
     void Update()
     {
-        HandleMovement();
+        if(controller.enabled)
+        {
+            HandleMovement();
+        }
     }
 
     private void HandleMovement()
@@ -151,8 +163,23 @@ public class PlayerController : MonoBehaviour
 
     private void OnSwap(InputAction.CallbackContext context)
     {
+        SwitchWorlds();
+    }
+
+    void SwitchWorlds()
+    {
         // Toggle the boolean
         isAlternateRealm = !isAlternateRealm;
+        if(isAlternateRealm)
+        {
+            StatueController.instance.EnableAllStatues();
+            RabbitPathwaysManager.instance.DisableWalls();
+        }
+        else
+        {
+            StatueController.instance.DisableAllStatues();
+            RabbitPathwaysManager.instance.EnableWalls();
+        }
 
         // Toggle the visual models
         if (variantA != null) variantA.SetActive(!isAlternateRealm);
@@ -160,5 +187,33 @@ public class PlayerController : MonoBehaviour
 
         // Toggle the black and white screen effect
         if (blackAndWhiteVolume != null) blackAndWhiteVolume.SetActive(isAlternateRealm);
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("StatueAggroZone"))
+        {
+            other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(transform);
+        }
+        if(other.CompareTag("StatueHitZone"))
+        {
+            other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(null);
+            DisableMovement();
+            controller.enabled = false;
+            transform.position = StatueController.instance.resetPosition.position;
+            controller.enabled = true;
+            SwitchWorlds();
+            EnableMovement();
+
+        }
+
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.CompareTag("StatueAggroZone"))
+        {
+            other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(null);
+        }
     }
 }
