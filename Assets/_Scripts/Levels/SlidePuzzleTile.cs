@@ -4,7 +4,8 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class SlidePuzzleTile : MonoBehaviour
 {
-    [Tooltip("The Renderer on the TOP FACE child object (the quad/plane that shows the puzzle image).")]
+    [Tooltip("MeshRenderer on the top-face Quad/Plane child that displays the puzzle image. " +
+             "Leave empty to auto-find a child named 'TopFace'.")]
     [SerializeField] private Renderer faceRenderer;
     [SerializeField] private float slideSpeed = 10f;
 
@@ -20,24 +21,70 @@ public class SlidePuzzleTile : MonoBehaviour
     {
         TileIndex = index;
 
+        // Auto-find if not manually assigned in the prefab inspector.
+        if (faceRenderer == null)
+        {
+            Transform face = transform.Find("TopFace");
+            if (face != null)
+                faceRenderer = face.GetComponent<Renderer>();
+
+            // Broader fallback: first child renderer that is NOT on the root.
+            if (faceRenderer == null)
+            {
+                foreach (Renderer r in GetComponentsInChildren<Renderer>())
+                {
+                    if (r.gameObject != gameObject) { faceRenderer = r; break; }
+                }
+            }
+
+            if (faceRenderer == null)
+            {
+                Debug.LogError($"SlidePuzzleTile '{name}': could not find a child Renderer. " +
+                               "Add a Quad child named 'TopFace' with a Renderer and a URP material.", this);
+                return;
+            }
+        }
+
+        if (image == null)
+        {
+            Debug.LogWarning($"SlidePuzzleTile '{name}': puzzleImage is not assigned on SlidePuzzle.", this);
+            return;
+        }
+
         int row = index / gridSize;
         int col = index % gridSize;
         float tiling = 1f / gridSize;
 
-        // UV (0,0) is bottom-left in Unity, but row 0 should map to the TOP of the
-        // image (reading order), so the V offset is flipped.
+        // UV (0,0) is bottom-left in Unity, but row 0 = TOP of the image (reading order).
         float uOffset = col * tiling;
         float vOffset = (gridSize - 1 - row) * tiling;
 
-        // Clone the shared material so each tile has independent UV settings.
+        Vector2 scale  = new Vector2(tiling, tiling);
+        Vector2 offset = new Vector2(uOffset, vOffset);
+
+        // Clone shared material so each tile gets independent UV settings.
         Material mat = new Material(faceRenderer.sharedMaterial);
-        mat.mainTexture = image;
-        mat.mainTextureScale  = new Vector2(tiling, tiling);
-        mat.mainTextureOffset = new Vector2(uOffset, vOffset);
+
+        // URP shaders expose _BaseMap; Built-in shaders expose _MainTex.
+        // Writing to both ensures the image appears regardless of which shader is used.
+        if (mat.HasProperty("_BaseMap"))
+        {
+            mat.SetTexture("_BaseMap", image);
+            mat.SetTextureScale("_BaseMap", scale);
+            mat.SetTextureOffset("_BaseMap", offset);
+        }
+
+        if (mat.HasProperty("_MainTex"))
+        {
+            mat.SetTexture("_MainTex", image);
+            mat.SetTextureScale("_MainTex", scale);
+            mat.SetTextureOffset("_MainTex", offset);
+        }
+
         faceRenderer.material = mat;
     }
 
-    // Instant repositioning used during shuffle setup.
+    // Instant repositioning used during shuffle setup (no animation).
     public void Teleport(Vector3 pos)
     {
         transform.position = pos;

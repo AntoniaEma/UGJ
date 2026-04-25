@@ -26,15 +26,24 @@ public class SlidePuzzle : Level
     private SlidePuzzleTile[] tiles;
     private int emptySlot;
 
-    private bool playerInRange = false;
+    [Header("Interaction")]
+    [SerializeField] private float interactionRadius = 4f;
+
     private bool isSolved = false;
     private bool tileIsSliding = false;
+    private Transform player;
 
     void Start()
     {
         GameManager.instance.gameLevels.Add(this);
         transform.SetParent(GameManager.instance.transform);
         ringPiece.SetActive(false);
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+            player = playerObj.transform;
+        else
+            Debug.LogWarning("SlidePuzzle: No GameObject with tag 'Player' found.", this);
 
         InitGrid();
         SpawnTiles();
@@ -43,7 +52,9 @@ public class SlidePuzzle : Level
 
     void Update()
     {
-        if (!playerInRange || isSolved || tileIsSliding) return;
+        if (isSolved || tileIsSliding) return;
+        if (player == null) return;
+        if (Vector3.Distance(puzzleOrigin.position, player.position) > interactionRadius) return;
 
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             HandleClick();
@@ -189,18 +200,6 @@ public class SlidePuzzle : Level
     {
         yield return new WaitForSeconds(0.5f);
         UnlockLevel();
-    }
-
-    // ── Proximity Detection ──────────────────────────────────────────────────
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player")) playerInRange = true;
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player")) playerInRange = false;
     }
 
     // ── Level Overrides ──────────────────────────────────────────────────────
