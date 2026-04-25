@@ -10,7 +10,9 @@ public class SlidePuzzleTile : MonoBehaviour
     private Vector3 targetPos;
     private bool isSliding;
     private Action onSlideComplete;
-    private GameObject imageFace; // reference kept so we can show/hide it
+    private GameObject imageFace;
+    private Renderer cubeRenderer;
+    private Color originalColor;
 
     // Called by SlidePuzzle immediately after Instantiate.
     public void Init(int index, Texture2D image, int gridSize,
@@ -55,7 +57,6 @@ public class SlidePuzzleTile : MonoBehaviour
         Vector2 offset = new Vector2(uOff,   vOff);
 
         // Find the cube child's renderer to borrow its material (guaranteed to render in this project).
-        Renderer cubeRenderer = null;
         foreach (Renderer cr in GetComponentsInChildren<Renderer>())
         {
             if (cr.gameObject == gameObject) continue;
@@ -101,10 +102,24 @@ public class SlidePuzzleTile : MonoBehaviour
         face.GetComponent<Renderer>().material = mat;
         imageFace = face;
         imageFace.SetActive(false); // hidden by default; shown only in rabbit form
+
+        // Store the original cube colour so highlighting can restore it.
+        if (cubeRenderer != null)
+            originalColor = cubeRenderer.material.color;
     }
 
     public void ShowImageFace() { if (imageFace != null) imageFace.SetActive(true); }
     public void HideImageFace() { if (imageFace != null) imageFace.SetActive(false); }
+
+    public void ShowHighlight()
+    {
+        if (cubeRenderer != null) cubeRenderer.material.color = Color.yellow;
+    }
+
+    public void HideHighlight()
+    {
+        if (cubeRenderer != null) cubeRenderer.material.color = originalColor;
+    }
 
     // Instant repositioning used during shuffle setup (no animation).
     public void Teleport(Vector3 pos)

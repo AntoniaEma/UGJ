@@ -63,7 +63,8 @@ public class SlidePuzzle : Level
         InitGrid();
         SpawnTiles();
         Shuffle();
-        HideImages(); // images hidden in magician form; revealed only in rabbit form
+        HideImages();      // images hidden in magician form; revealed only in rabbit form
+        RefreshHighlights(); // yellow highlight on moveable tiles from the start
     }
 
     void Update()
@@ -122,6 +123,13 @@ public class SlidePuzzle : Level
             int tileIdx = grid[slot];
             if (tileIdx >= 0) tiles[tileIdx].Teleport(SlotToWorldPos(slot));
         }
+
+        // Count displaced tiles so we can confirm shuffleMoves is being respected.
+        int displaced = 0;
+        for (int i = 0; i < grid.Length - 1; i++)
+            if (grid[i] != i) displaced++;
+        Debug.Log($"[SlidePuzzle] Shuffled {shuffleMoves} move(s) → {displaced} tile(s) out of place. " +
+                  $"Empty slot at index {emptySlot}.");
     }
 
     // ── Slot Helpers ────────────────────────────────────────────────────────
@@ -177,6 +185,7 @@ public class SlidePuzzle : Level
     private void OnTileSlideFinished()
     {
         tileIsSliding = false;
+        RefreshHighlights();
         CheckWin();
     }
 
@@ -198,16 +207,35 @@ public class SlidePuzzle : Level
         SlideIntoEmpty(tileSlot);
     }
 
+    // ── Highlights ────────────────────────────────────────────────────────────
+
+    // Yellow-tint the tiles that are adjacent to the empty slot (i.e. can be clicked).
+    private void RefreshHighlights()
+    {
+        foreach (SlidePuzzleTile t in tiles) t.HideHighlight();
+
+        foreach (int slot in GetAdjacentFilledSlots(emptySlot))
+        {
+            int idx = grid[slot];
+            if (idx >= 0) tiles[idx].ShowHighlight();
+        }
+    }
+
     // ── Win Condition ────────────────────────────────────────────────────────
 
     private void CheckWin()
     {
         int total = gridSize * gridSize;
+        int displaced = 0;
         for (int i = 0; i < total - 1; i++)
-            if (grid[i] != i) return;
-        if (emptySlot != total - 1) return;
+            if (grid[i] != i) displaced++;
+
+        Debug.Log($"[SlidePuzzle] CheckWin: {displaced} tile(s) still displaced, emptySlot={emptySlot} (need {total - 1}).");
+
+        if (displaced > 0 || emptySlot != total - 1) return;
 
         isSolved = true;
+        foreach (SlidePuzzleTile t in tiles) t.HideHighlight();
         StartCoroutine(WinDelay());
     }
 
