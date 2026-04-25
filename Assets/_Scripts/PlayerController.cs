@@ -163,17 +163,23 @@ public class PlayerController : MonoBehaviour
         isAlternateRealm = !isAlternateRealm;
         if(isAlternateRealm)
         {
-            StatueController.instance.EnableAllStatues();
-            RabbitPathwaysManager.instance.DisableWalls();
+            //Level 1 World switch triggers
             DancingPuzzle.instance.HideSteps();
             DancingStatue.instance.Dance();
+
+            //Level 2 World switch triggers
+            // StatueController.instance.EnableAllStatues();
+            // RabbitPathwaysManager.instance.DisableWalls();
         }
         else
         {
+            //Level 1 world switch triggers
             DancingPuzzle.instance.RevealSteps();
-            StatueController.instance.DisableAllStatues();
-            RabbitPathwaysManager.instance.EnableWalls();
             DancingStatue.instance.StopDancing();
+
+            //Level 2 World switch triggers
+            // StatueController.instance.DisableAllStatues();
+            // RabbitPathwaysManager.instance.EnableWalls();
         }
 
         if (variantA != null) variantA.SetActive(!isAlternateRealm);

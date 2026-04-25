@@ -4,6 +4,7 @@ using UnityEngine;
 public class DancingPuzzle : MonoBehaviour
 {
     public static DancingPuzzle instance;
+    public Level level;
     public List<DancingStep> correctSteps = new List<DancingStep>();
     private List<DancingStep> playerInput = new List<DancingStep>();
 
@@ -34,8 +35,8 @@ public class DancingPuzzle : MonoBehaviour
         if(playerInput.Count == correctSteps.Count)
         {
             //Level 1 complete logic
-            Debug.Log("Level 1 complete");
             gameObject.SetActive(false);
+            level.UnlockLevel();
         }
     }
 
