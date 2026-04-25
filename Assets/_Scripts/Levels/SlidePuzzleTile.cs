@@ -28,14 +28,24 @@ public class SlidePuzzleTile : MonoBehaviour
         float uOffset = col * tiling;
         float vOffset = (gridSize - 1 - row) * tiling; // flip Y: UV origin is bottom-left
 
+        // Measure the cube child's actual height so the image face always sits on top.
+        float yOffset = 0.52f; // safe default above a 1-unit cube
+        foreach (Renderer cr in GetComponentsInChildren<Renderer>())
+        {
+            if (cr.gameObject == gameObject) continue;
+            yOffset = cr.bounds.extents.y + 0.02f;
+            break;
+        }
+
         // Create a flat quad on top of the tile body to display the image.
         // This is done in code so no manual TopFace setup is needed in the prefab.
         GameObject face = GameObject.CreatePrimitive(PrimitiveType.Quad);
         face.name = "ImageFace";
         face.transform.SetParent(transform, false);
-        face.transform.localPosition = new Vector3(0f, 0.11f, 0f); // just above the cube top
+        face.transform.localPosition = new Vector3(0f, yOffset, 0f); // just above the cube top
         face.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f); // rotate to face upward
         face.transform.localScale    = new Vector3(0.95f, 0.95f, 1f);
+        Debug.Log($"[SlidePuzzle] Tile {index} ImageFace created at localY={yOffset:F3}", this);
 
         // The Quad primitive adds a MeshCollider — remove it so only the cube's
         // BoxCollider is used for raycasting.
