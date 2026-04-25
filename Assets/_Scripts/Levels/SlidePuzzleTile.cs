@@ -1,15 +1,10 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
 public class SlidePuzzleTile : MonoBehaviour
 {
-    [Tooltip("MeshRenderer on the top-face Quad/Plane child that displays the puzzle image. " +
-             "Leave empty to auto-find a child named 'TopFace'.")]
-    [SerializeField] private Renderer faceRenderer;
     [SerializeField] private float slideSpeed = 10f;
 
-    // The index this tile represents in the solved layout (0 = top-left, reading order).
     public int TileIndex { get; private set; }
 
     private Vector3 targetPos;
@@ -21,79 +16,73 @@ public class SlidePuzzleTile : MonoBehaviour
     {
         TileIndex = index;
 
-        // Auto-find if not manually assigned in the prefab inspector.
-        if (faceRenderer == null)
-        {
-            Transform face = transform.Find("TopFace");
-            if (face != null)
-                faceRenderer = face.GetComponent<Renderer>();
-
-            // Broader fallback: first child renderer that is NOT on the root.
-            if (faceRenderer == null)
-            {
-                foreach (Renderer r in GetComponentsInChildren<Renderer>())
-                {
-                    if (r.gameObject != gameObject) { faceRenderer = r; break; }
-                }
-            }
-
-            if (faceRenderer == null)
-            {
-                Debug.LogError($"SlidePuzzleTile '{name}': could not find a child Renderer. " +
-                               "Add a Quad child named 'TopFace' with a Renderer and a URP material.", this);
-                return;
-            }
-        }
-
         if (image == null)
         {
-            Debug.LogWarning($"SlidePuzzleTile '{name}': puzzleImage is not assigned on SlidePuzzle.", this);
+            Debug.LogWarning($"SlidePuzzleTile '{name}': Puzzle Image is not assigned on SlidePuzzle.", this);
             return;
         }
 
         int row = index / gridSize;
         int col = index % gridSize;
-        float tiling = 1f / gridSize;
-
-        // UV (0,0) is bottom-left in Unity, but row 0 = TOP of the image (reading order).
+        float tiling  = 1f / gridSize;
         float uOffset = col * tiling;
-        float vOffset = (gridSize - 1 - row) * tiling;
+        float vOffset = (gridSize - 1 - row) * tiling; // flip Y: UV origin is bottom-left
 
-        Vector2 scale  = new Vector2(tiling, tiling);
-        Vector2 offset = new Vector2(uOffset, vOffset);
+        // Create a flat quad on top of the tile body to display the image.
+        // This is done in code so no manual TopFace setup is needed in the prefab.
+        GameObject face = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        face.name = "ImageFace";
+        face.transform.SetParent(transform, false);
+        face.transform.localPosition = new Vector3(0f, 0.11f, 0f); // just above the cube top
+        face.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f); // rotate to face upward
+        face.transform.localScale    = new Vector3(0.95f, 0.95f, 1f);
 
-        // Clone shared material so each tile gets independent UV settings.
-        Material mat = new Material(faceRenderer.sharedMaterial);
-        bool appliedTexture = false;
+        // The Quad primitive adds a MeshCollider — remove it so only the cube's
+        // BoxCollider is used for raycasting.
+        Destroy(face.GetComponent<Collider>());
 
-        // URP shaders expose _BaseMap; Built-in shaders expose _MainTex.
+        Renderer r = face.GetComponent<Renderer>();
+        r.material = BuildMaterial(image, tiling, uOffset, vOffset);
+    }
+
+    private static Material BuildMaterial(Texture2D image, float tiling, float uOffset, float vOffset)
+    {
+        // Use Unlit so the image appears at full brightness regardless of scene lighting.
+        // Try URP Unlit first, fall back to Built-in Unlit/Texture.
+        Shader shader = Shader.Find("Universal Render Pipeline/Unlit")
+                     ?? Shader.Find("Unlit/Texture");
+
+        if (shader == null)
+        {
+            Debug.LogError("SlidePuzzleTile: Could not find a usable Unlit shader. " +
+                           "Make sure URP is set up correctly.");
+            return new Material(Shader.Find("Standard"));
+        }
+
+        Material mat    = new Material(shader);
+        Vector2  scale  = new Vector2(tiling, tiling);
+        Vector2  offset = new Vector2(uOffset, vOffset);
+
+        // _BaseMap  = URP Unlit texture slot
+        // _MainTex  = Built-in Unlit/Texture slot
         if (mat.HasProperty("_BaseMap"))
         {
             mat.SetTexture("_BaseMap", image);
-            mat.SetTextureScale("_BaseMap", scale);
+            mat.SetTextureScale("_BaseMap",  scale);
             mat.SetTextureOffset("_BaseMap", offset);
-            appliedTexture = true;
         }
-
         if (mat.HasProperty("_MainTex"))
         {
             mat.SetTexture("_MainTex", image);
-            mat.SetTextureScale("_MainTex", scale);
+            mat.SetTextureScale("_MainTex",  scale);
             mat.SetTextureOffset("_MainTex", offset);
-            appliedTexture = true;
         }
 
-        // Force the base color to white so the texture isn't multiplied to black.
-        // URP/Lit uses _BaseColor; Built-in Standard uses _Color.
+        // Ensure base color is white so it never tints the texture.
         if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
         if (mat.HasProperty("_Color"))     mat.SetColor("_Color",     Color.white);
 
-        if (!appliedTexture)
-            Debug.LogWarning($"SlidePuzzleTile '{name}': the material uses shader '{mat.shader.name}' " +
-                             "which has no _BaseMap or _MainTex property. " +
-                             "Change the shader to Universal Render Pipeline/Lit or Unlit.", this);
-
-        faceRenderer.material = mat;
+        return mat;
     }
 
     // Instant repositioning used during shuffle setup (no animation).
