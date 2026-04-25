@@ -64,14 +64,15 @@ public class SlidePuzzleTile : MonoBehaviour
 
         // Clone shared material so each tile gets independent UV settings.
         Material mat = new Material(faceRenderer.sharedMaterial);
+        bool appliedTexture = false;
 
         // URP shaders expose _BaseMap; Built-in shaders expose _MainTex.
-        // Writing to both ensures the image appears regardless of which shader is used.
         if (mat.HasProperty("_BaseMap"))
         {
             mat.SetTexture("_BaseMap", image);
             mat.SetTextureScale("_BaseMap", scale);
             mat.SetTextureOffset("_BaseMap", offset);
+            appliedTexture = true;
         }
 
         if (mat.HasProperty("_MainTex"))
@@ -79,7 +80,16 @@ public class SlidePuzzleTile : MonoBehaviour
             mat.SetTexture("_MainTex", image);
             mat.SetTextureScale("_MainTex", scale);
             mat.SetTextureOffset("_MainTex", offset);
+            appliedTexture = true;
         }
+
+        if (!appliedTexture)
+            Debug.LogWarning($"SlidePuzzleTile '{name}': the material '{mat.name}' uses shader " +
+                             $"'{mat.shader.name}' which has no _BaseMap or _MainTex property. " +
+                             "Change the shader to URP/Lit or Universal Render Pipeline/Unlit.", this);
+
+        Debug.Log($"[SlidePuzzle] Tile {index} → renderer: '{faceRenderer.gameObject.name}' " +
+                  $"| shader: '{mat.shader.name}' | textureApplied: {appliedTexture}", this);
 
         faceRenderer.material = mat;
     }
