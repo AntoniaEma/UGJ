@@ -3,9 +3,9 @@ using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
-    public GameObject overlay;      // panel-ul de pauza
-    public GameObject pauseButton;  // butonul ||
-    public GameObject playButton;   // butonul ▶
+    public GameObject overlay;     
+    public GameObject pauseButton;  
+    public GameObject playButton;  
 
     private bool isPaused = false;
 
@@ -18,12 +18,10 @@ public class PauseMenu : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        // cursor mereu vizibil
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    // 🔘 apasare pe butonul Pause
     public void Pause()
     {
         if (isPaused) return;
@@ -36,7 +34,6 @@ public class PauseMenu : MonoBehaviour
         isPaused = true;
     }
 
-    // ▶ apasare pe butonul Play
     public void Resume()
     {
         if (!isPaused) return;
@@ -49,14 +46,12 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
     }
 
-    // 🔄 restart nivel
     public void Replay()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // ❌ iesire joc
     public void QuitGame()
     {
         Application.Quit();
