@@ -24,9 +24,9 @@ public class SlidePuzzle : Level
     [SerializeField] private Transform puzzleOrigin;
 
     [Header("Image Orientation")]
-    [Tooltip("Flip the image left-right on each tile.")]
+    [Tooltip("Mirror the image left ↔ right (flip across the vertical axis).")]
     [SerializeField] private bool flipImageHorizontal = false;
-    [Tooltip("Flip the image top-bottom on each tile.")]
+    [Tooltip("Mirror the image top ↔ bottom (flip across the horizontal axis).")]
     [SerializeField] private bool flipImageVertical = false;
     [Tooltip("Local Y offset of the image face relative to the tile root. " +
              "Negative = behind/below the cube body. Positive = above it.")]

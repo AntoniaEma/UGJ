@@ -29,16 +29,30 @@ public class SlidePuzzleTile : MonoBehaviour
         int col = index % gridSize;
         float tiling = 1f / gridSize;
 
-        // Flip the column/row index when requested so the user can correct orientation
-        // from the SlidePuzzle Inspector without touching code.
-        int displayCol = flipHorizontal ? (gridSize - 1 - col) : col;
-        int displayRow = flipVertical   ? (gridSize - 1 - row) : row;
+        // Base UV region for this tile's correct position.
+        // Unity UV origin is bottom-left, so row 0 (top of puzzle) maps to high V.
+        float uOff = col   * tiling;
+        float vOff = (gridSize - 1 - row) * tiling;
 
-        float uOffset = displayCol * tiling;
-        float vOffset = (gridSize - 1 - displayRow) * tiling; // UV origin is bottom-left in Unity
+        // True flip via negative UV scale — reverses the sample direction inside
+        // each tile's region, so the image is actually mirrored, not just rearranged.
+        float uScale = tiling;
+        float vScale = tiling;
 
-        Vector2 scale  = new Vector2(tiling, tiling);
-        Vector2 offset = new Vector2(uOffset, vOffset);
+        if (flipHorizontal)
+        {
+            uScale = -tiling;
+            uOff  += tiling; // shift so the negative scale still covers the right region
+        }
+
+        if (flipVertical)
+        {
+            vScale = -tiling;
+            vOff  += tiling;
+        }
+
+        Vector2 scale  = new Vector2(uScale, vScale);
+        Vector2 offset = new Vector2(uOff,   vOff);
 
         // Find the cube child's renderer to borrow its material (guaranteed to render in this project).
         Renderer cubeRenderer = null;
