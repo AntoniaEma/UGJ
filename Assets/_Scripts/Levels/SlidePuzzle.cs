@@ -268,5 +268,5 @@ public class SlidePuzzle : Level
 
     public override void UnlockLevel() => ringPiece.SetActive(true);
 
-    public override void CompleteLevel() => levelWall.SetTrigger("GateOpen");
+    public override void CompleteLevel() => levelWall.Play("GateOpen");
 }
