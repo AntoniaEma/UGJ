@@ -34,6 +34,6 @@ public class MainMenu : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
-        Debug.Log("Game Closed"); // util în editor
+        Debug.Log("Game Closed");
     }
 }
