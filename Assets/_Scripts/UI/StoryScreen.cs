@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 using TMPro;
 
 /// <summary>
@@ -36,12 +37,11 @@ public class StoryScreen : MonoBehaviour
         }
 
         // Any click anywhere on the screen, or Space / Enter, continues.
-        if (Input.GetMouseButtonDown(0) ||
-            Input.GetKeyDown(KeyCode.Space) ||
-            Input.GetKeyDown(KeyCode.Return))
-        {
+        bool clicked = Mouse.current    != null && Mouse.current.leftButton.wasPressedThisFrame;
+        bool spaced  = Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame ||
+                                                    Keyboard.current.enterKey.wasPressedThisFrame);
+        if (clicked || spaced)
             Continue();
-        }
     }
 
     public void Continue()
