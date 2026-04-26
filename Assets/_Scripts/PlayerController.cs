@@ -153,6 +153,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             currentAnimator.SetBool("IsWalking", false);
+            SoundManager.instance?.StopFootsteps();
         }
 
         controller.Move(moveDirection * moveSpeed * Time.deltaTime);

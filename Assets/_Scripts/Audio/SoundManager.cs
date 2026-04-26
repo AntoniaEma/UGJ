@@ -172,6 +172,8 @@ public class SoundManager : MonoBehaviour
 
     // ── Footsteps ─────────────────────────────────────────────────────────────
 
+    public void StopFootsteps() => footstepSource.Stop();
+
     /// <param name="isRabbit">True = rabbit form, False = magician form.</param>
     public void PlayFootstep(bool isRabbit)
     {
