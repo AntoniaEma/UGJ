@@ -24,11 +24,12 @@ public class PaintingManager : MonoBehaviour
     {
         if(paintingOrder[0] == painting)
         {
+            SoundManager.instance?.PlayPaintingPlace();
             painting.SubmitPainting();
             paintingOrder.Remove(painting);
             if(paintingOrder.Count == 0)
             {
-                level.UnlockLevel();    
+                level.UnlockLevel();
             }
         }
         
