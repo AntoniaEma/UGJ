@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -10,12 +9,6 @@ using TMPro;
 /// </summary>
 public class StoryScreen : MonoBehaviour
 {
-    [Tooltip("Drag your story/lore picture (Sprite) here.")]
-    [SerializeField] private Sprite storySprite;
-
-    [Tooltip("The UI Image component that will display the picture.")]
-    [SerializeField] private Image displayImage;
-
     [Tooltip("TextMeshPro text that shows the hint. E.g. 'Click anywhere to continue'.")]
     [SerializeField] private TMP_Text hintText;
 
@@ -27,9 +20,6 @@ public class StoryScreen : MonoBehaviour
 
     void Start()
     {
-        if (displayImage != null && storySprite != null)
-            displayImage.sprite = storySprite;
-
         if (hintText != null)
             hintText.text = "Click anywhere or press Space to continue";
     }
