@@ -8,6 +8,11 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 6f;
     public float jumpForce = 8f;
     public float gravity = -20f;
+    
+    [Header("Camera Orbit Settings")]
+    [Tooltip("Assign an Empty GameObject here. It should NOT be a child of the Player.")]
+    public Transform cameraAnchor;
+    public float cameraRotationSpeed = 0.5f;
 
     [Header("Dash Settings")]
     public float dashSpeed = 15f;
@@ -15,13 +20,16 @@ public class PlayerController : MonoBehaviour
     public float dashCooldown = 1f;
 
     [Header("Input Actions")]
-    [Tooltip("Requires a Vector2 action (e.g., WASD/Left Stick)")]
     public InputActionReference moveAction;
-    [Tooltip("Requires a Button action (e.g., Spacebar/South Button)")]
     public InputActionReference jumpAction;
-    [Tooltip("Requires a Button action (e.g., Left Shift/Right Trigger)")]
     public InputActionReference dashAction;
+    public InputActionReference swapAction;
 
+    [Header("Realm Swap Settings")]
+    public GameObject variantA;
+    public GameObject variantB;
+    public GameObject blackAndWhiteVolume;
+    
     private CharacterController controller;
     private Vector3 velocity;
     private Vector2 moveInput;
@@ -29,14 +37,6 @@ public class PlayerController : MonoBehaviour
     private bool isDashing = false;
     private float dashTime;
     private float lastDashTime;
-
-    [Header("Realm Swap Settings")]
-    [Tooltip("Requires a Button action (e.g., Y/Triangle)")]
-    public InputActionReference swapAction;
-    public GameObject variantA;
-    public GameObject variantB;
-    public GameObject blackAndWhiteVolume;
-    
     private bool isAlternateRealm = false;
 
 
@@ -44,85 +44,96 @@ public class PlayerController : MonoBehaviour
     public Animator rabbitAnimator;
     private Animator currentAnimator;
 
+    private Camera mainCamera;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
         currentAnimator = magicianAnimator;
+        mainCamera = Camera.main;
     }
 
     void EnableMovement()
     {
-        // Enable the input actions
         moveAction.action.Enable();
         jumpAction.action.Enable();
         dashAction.action.Enable();
-
-        // Subscribe to Jump and Dash events
         jumpAction.action.performed += OnJump;
         dashAction.action.performed += OnDash;
-
-        // Swap characters
         swapAction.action.Enable();
         swapAction.action.performed += OnSwap;
+    }
 
-    }
-    void OnEnable()
-    {
-        EnableMovement();
-    }
+    void OnEnable() => EnableMovement();
 
     void DisableMovement()
     {
-        // Disable the input actions to prevent memory leaks
         moveAction.action.Disable();
         jumpAction.action.Disable();
         dashAction.action.Disable();
-
-        // Unsubscribe from events
         jumpAction.action.performed -= OnJump;
         dashAction.action.performed -= OnDash;
-
-        // Swap
         swapAction.action.Disable();
         swapAction.action.performed -= OnSwap;
     }
-    void OnDisable()
-    {
-        DisableMovement();
-    }
+
+    void OnDisable() => DisableMovement();
 
     void Update()
     {
         if(controller.enabled)
         {
+            HandleCameraOrbit();
             HandleMovement();
+        }
+    }
+
+    private void HandleCameraOrbit()
+    {
+        if (cameraAnchor != null)
+        {
+            // 1. Keep the anchor snapped to the player's feet
+            cameraAnchor.position = transform.position;
+
+            // 2. Spin the anchor when holding right-click
+            if (Mouse.current != null && Mouse.current.rightButton.isPressed)
+            {
+                float mouseX = Mouse.current.delta.x.ReadValue();
+                cameraAnchor.Rotate(0f, mouseX * cameraRotationSpeed, 0f, Space.World);
+            }
         }
     }
 
     private void HandleMovement()
     {
-        // 1. Handle Dash Override
         if (isDashing)
         {
             if (Time.time < dashTime + dashDuration)
             {
-                // Force the player forward while dashing
                 controller.Move(transform.forward * dashSpeed * Time.deltaTime);
-                return; // Skip normal movement while dashing
+                return; 
             }
-            else
-            {
-                isDashing = false;
-            }
+            else isDashing = false;
         }
 
-        // 2. Normal Movement
         moveInput = moveAction.action.ReadValue<Vector2>();
-        
-        // Map 2D input (X/Y) to 3D world space (X/Z) for top-down perspective
-        Vector3 moveDirection = new Vector3(moveInput.x, 0f, moveInput.y);
+        Vector3 moveDirection = Vector3.zero;
 
-        // Rotate the capsule to face the movement direction
+        // Calculate movement strictly relative to where the camera is looking
+        if (mainCamera != null)
+        {
+            Vector3 forward = mainCamera.transform.forward;
+            Vector3 right = mainCamera.transform.right;
+            
+            forward.y = 0f;
+            right.y = 0f;
+            forward.Normalize();
+            right.Normalize();
+
+            moveDirection = forward * moveInput.y + right * moveInput.x;
+        }
+
+        // Rotate the character to face the direction they are walking
         if (moveDirection != Vector3.zero)
         {
             gameObject.transform.forward = moveDirection;
@@ -135,51 +146,31 @@ public class PlayerController : MonoBehaviour
 
         controller.Move(moveDirection * moveSpeed * Time.deltaTime);
 
-        // 3. Gravity & Ground Check
-        if (controller.isGrounded && velocity.y < 0)
-        {
-            velocity.y = -2f; // Small constant downward force to keep them snapped to the floor
-        }
-
+        if (controller.isGrounded && velocity.y < 0) velocity.y = -2f; 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (controller.isGrounded && !isDashing)
-        {
-            velocity.y = jumpForce;
-        }
+        if (controller.isGrounded && !isDashing) velocity.y = jumpForce;
     }
 
     private void OnDash(InputAction.CallbackContext context)
     {
         if (Time.time > lastDashTime + dashCooldown && !isDashing)
         {
-            // Optional: If you want to dash in the direction you are pointing the stick, 
-            // rather than the direction the capsule is currently facing:
-            if (moveInput != Vector2.zero)
-            {
-                transform.forward = new Vector3(moveInput.x, 0f, moveInput.y);
-            }
-            
             isDashing = true;
             dashTime = Time.time;
             lastDashTime = Time.time;
-            
-            velocity.y = 0f; // Neutralize gravity/jump momentum during the dash
+            velocity.y = 0f; 
         }
     }
 
-    private void OnSwap(InputAction.CallbackContext context)
-    {
-        SwitchWorlds();
-    }
+    private void OnSwap(InputAction.CallbackContext context) => SwitchWorlds();
 
     void SwitchWorlds()
     {
-        // Toggle the boolean
         isAlternateRealm = !isAlternateRealm;
         if(isAlternateRealm)
         {
@@ -193,6 +184,9 @@ public class PlayerController : MonoBehaviour
             //Level 2 World switch triggers
             StatueController.instance.EnableAllStatues();
             RabbitPathwaysManager.instance.DisableWalls();
+
+            //Slide puzzle — reveal image in rabbit form
+            SlidePuzzle.instance?.ShowImages();
         }
         else
         {
@@ -203,28 +197,23 @@ public class PlayerController : MonoBehaviour
             //Level 2 World switch triggers
             StatueController.instance.DisableAllStatues();
             RabbitPathwaysManager.instance.EnableWalls();
+            //Slide puzzle — hide image in magician form
+            SlidePuzzle.instance?.HideImages();
         }
-
-
 
         // Toggle the visual models
         if (variantA != null) variantA.SetActive(!isAlternateRealm);
         if (variantB != null) variantB.SetActive(isAlternateRealm);
-
-        // Toggle the animators
         currentAnimator = isAlternateRealm ? rabbitAnimator : magicianAnimator;
+        // Toggle the animators
 
-        // Toggle the black and white screen effect
+
         if (blackAndWhiteVolume != null) blackAndWhiteVolume.SetActive(isAlternateRealm);
-
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("StatueAggroZone"))
-        {
-            other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(transform);
-        }
+        if(other.CompareTag("StatueAggroZone")) other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(transform);
         if(other.CompareTag("StatueHitZone"))
         {
             other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(null);
@@ -234,15 +223,11 @@ public class PlayerController : MonoBehaviour
             controller.enabled = true;
             SwitchWorlds();
             EnableMovement();
-
         }
-
     }
+
     private void OnTriggerExit(Collider other)
     {
-        if(other.CompareTag("StatueAggroZone"))
-        {
-            other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(null);
-        }
+        if(other.CompareTag("StatueAggroZone")) other.transform.parent.GetComponent<StatueMovement>().SetStatueTarget(null);
     }
 }
