@@ -10,12 +10,6 @@ public class MainMenu : MonoBehaviour
     [Tooltip("Name of the story/cutscene scene that plays before the game.")]
     [SerializeField] private string storySceneName = "StoryScene";
 
-    void Start()
-    {
-        // Start the menu music — SoundManager persists so it continues into the story screen.
-        SoundManager.instance?.PlayMenuMusic();
-    }
-
     public void PlayGame()
     {
         SceneManager.LoadScene(storySceneName);
