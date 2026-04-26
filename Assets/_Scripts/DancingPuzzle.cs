@@ -22,6 +22,10 @@ public class DancingPuzzle : MonoBehaviour
 
     public void RegisterStep(DancingStep playerStep)
     {
+        if(playerInput.Count != 0 && playerStep == playerInput[playerInput.Count - 1])
+        {
+            return;
+        }
         playerInput.Add(playerStep);
 
         int i = playerInput.Count - 1;
