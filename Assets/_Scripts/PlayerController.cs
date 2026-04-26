@@ -39,12 +39,16 @@ public class PlayerController : MonoBehaviour
     private float lastDashTime;
     private bool isAlternateRealm = false;
 
-
     public Animator magicianAnimator;
     public Animator rabbitAnimator;
     private Animator currentAnimator;
 
     private Camera mainCamera;
+
+    [Header("Footstep Settings")]
+    [Tooltip("Seconds between footstep sounds while walking on the ground.")]
+    [SerializeField] private float footstepInterval = 0.38f;
+    private float nextFootstepTime;
 
     void Start()
     {
@@ -138,6 +142,13 @@ public class PlayerController : MonoBehaviour
         {
             gameObject.transform.forward = moveDirection;
             currentAnimator.SetBool("IsWalking", true);
+
+            // Footsteps — only while grounded and actually moving
+            if (controller.isGrounded && Time.time >= nextFootstepTime)
+            {
+                SoundManager.instance?.PlayFootstep(isAlternateRealm);
+                nextFootstepTime = Time.time + footstepInterval;
+            }
         }
         else
         {
@@ -153,7 +164,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (controller.isGrounded && !isDashing) velocity.y = jumpForce;
+        if (controller.isGrounded && !isDashing)
+        {
+            velocity.y = jumpForce;
+            SoundManager.instance?.PlayJump(isAlternateRealm);
+        }
     }
 
     private void OnDash(InputAction.CallbackContext context)
@@ -174,8 +189,7 @@ public class PlayerController : MonoBehaviour
         isAlternateRealm = !isAlternateRealm;
         if(isAlternateRealm)
         {
-            //Tutorial World switch triggers            
-
+            SoundManager.instance?.PlaySwapToRabbit();
 
             //Level 1 World switch triggers
             DancingPuzzle.instance.HideSteps();
@@ -187,9 +201,14 @@ public class PlayerController : MonoBehaviour
 
             //Slide puzzle — reveal image in rabbit form
             SlidePuzzle.instance?.ShowImages();
+
+            //Audio — rabbit ambience
+            SoundManager.instance?.PlayRabbitWhispers();
         }
         else
         {
+            SoundManager.instance?.PlaySwapToMagician();
+
             //Level 1 world switch triggers
             DancingPuzzle.instance.RevealSteps();
             DancingStatue.instance.StopDancing();
@@ -197,8 +216,12 @@ public class PlayerController : MonoBehaviour
             //Level 2 World switch triggers
             StatueController.instance.DisableAllStatues();
             RabbitPathwaysManager.instance.EnableWalls();
+
             //Slide puzzle — hide image in magician form
             SlidePuzzle.instance?.HideImages();
+
+            //Audio — stop rabbit ambience
+            SoundManager.instance?.StopRabbitWhispers();
         }
 
         // Toggle the visual models

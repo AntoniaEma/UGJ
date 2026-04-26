@@ -18,6 +18,7 @@ public class RingPiece : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
+            SoundManager.instance?.PlayRingCollect();
             if(levelToUnlock != null) 
             {
                 levelToUnlock.CompleteLevel();

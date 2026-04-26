@@ -27,6 +27,12 @@ public class StatueMovement : MonoBehaviour
     }
     public void SetStatueTarget(Transform t)
     {
+        bool wasChasing = target != null;
+        bool willChase  = t != null;
+
         target = t;
+
+        if (!wasChasing && willChase)  SoundManager.instance?.StartDemonChase();
+        if (wasChasing  && !willChase) SoundManager.instance?.StopDemonChase();
     }
 }
