@@ -1917,14 +1917,18 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Use the arrows to move
+  m_text: 'Use WASD to move
 
     Press SPACE to jump
 
     Press ALT to transform
 
     Press
-    SHIFT to dash'
+    SHIFT to dash
+
+    Solve the puzzles
+
+    ENJOY!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 718310ea74f854e4d9884d72bb88ae56, type: 2}
   m_sharedMaterial: {fileID: -6513536034443203274, guid: 718310ea74f854e4d9884d72bb88ae56, type: 2}
@@ -2111,7 +2115,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: ba752b81938aa544bbdec0ba28ef79a3, type: 3}
+  m_Resource: {fileID: 8300000, guid: 595c2f05f18bfce3eaba2960174e0250, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
