@@ -24,6 +24,7 @@ public class Painting : MonoBehaviour
     {
         //Logic for Flying painting
         animator.SetTrigger("Fly");
+        gameObject.SetActive(false);
 
     }
 }
