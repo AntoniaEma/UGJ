@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
@@ -8,6 +9,15 @@ public class PauseMenu : MonoBehaviour
     public GameObject playButton;  
 
     private bool isPaused = false;
+
+    void Update()
+    {
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if (isPaused) Resume();
+            else          Pause();
+        }
+    }
 
     void Start()
     {
