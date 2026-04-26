@@ -22,7 +22,8 @@ public class DancingPuzzle : MonoBehaviour
 
     public void RegisterStep(DancingStep playerStep)
     {
-        if(playerInput.Count != 0 && playerStep == playerInput[playerInput.Count - 1])
+
+        if((playerInput.Count != 0 && playerStep == playerInput[playerInput.Count - 1]) || playerInput.Count == correctSteps.Count)
         {
             return;
         }
@@ -33,13 +34,18 @@ public class DancingPuzzle : MonoBehaviour
         if(playerInput[i] != correctSteps[i])
         {
             playerInput.Clear();
+            foreach(DancingStep step in correctSteps)
+            {
+                step.ResetColor();
+            }
             return;
         }
+        playerStep.MarkStep();
 
         if(playerInput.Count == correctSteps.Count)
         {
             //Level 1 complete logic
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false);
             level.UnlockLevel();
         }
     }
