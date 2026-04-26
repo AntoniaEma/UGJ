@@ -135,6 +135,7 @@ public class SlidePuzzleTile : MonoBehaviour
         targetPos = pos;
         isSliding = true;
         onSlideComplete = onComplete;
+        SoundManager.instance?.PlayTileSlide();
     }
 
     void Update()

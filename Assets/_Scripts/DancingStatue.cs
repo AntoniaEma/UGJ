@@ -16,11 +16,14 @@ public class DancingStatue : MonoBehaviour
     {
         gameObject.SetActive(true);
         animator.Play("StatueDance", 0, 0);
+        SoundManager.instance?.PlayStatueDance();
     }
+
     public void StopDancing()
     {
         animator.StopPlayback();
         gameObject.SetActive(false);
+        SoundManager.instance?.StopStatueDance();
     }
 
     // Update is called once per frame
