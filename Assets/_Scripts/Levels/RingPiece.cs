@@ -18,7 +18,10 @@ public class RingPiece : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-            levelToUnlock.CompleteLevel();
+            if(levelToUnlock != null) 
+            {
+                levelToUnlock.CompleteLevel();
+            }
             gameObject.SetActive(false);
         }
     }
