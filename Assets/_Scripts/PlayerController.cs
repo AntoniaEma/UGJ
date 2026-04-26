@@ -187,6 +187,7 @@ public class PlayerController : MonoBehaviour
     void SwitchWorlds()
     {
         isAlternateRealm = !isAlternateRealm;
+        PaintingManager.instance.SwitchRealms();
         if(isAlternateRealm)
         {
             SoundManager.instance?.PlaySwapToRabbit();

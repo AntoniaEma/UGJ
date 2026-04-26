@@ -38,7 +38,7 @@ public class PaintingManager : MonoBehaviour
     {
         foreach(Painting currentPainting in paintingOrder)
         {
-            currentPainting.gameObject.SetActive(!currentPainting.gameObject.activeSelf);
+            currentPainting.TogglePaintingLight();
         }
         
 
