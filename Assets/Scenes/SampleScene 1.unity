@@ -1390,7 +1390,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1945309594}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: Replay
         m_Mode: 1
@@ -7798,7 +7798,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1945309594}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
@@ -16334,7 +16334,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1945309594}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: Resume
         m_Mode: 1
@@ -16481,7 +16481,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1945309594}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: Pause
         m_Mode: 1
@@ -17331,6 +17331,7 @@ GameObject:
   - component: {fileID: 1945309592}
   - component: {fileID: 1945309591}
   - component: {fileID: 1945309590}
+  - component: {fileID: 1945309594}
   m_Layer: 5
   m_Name: InGameUI
   m_TagString: Untagged
@@ -17423,6 +17424,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1945309594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1945309589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6c1d99a7e123394d8645aeb72187a51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
+  overlay: {fileID: 110236052}
+  pauseButton: {fileID: 1876670110}
+  playButton: {fileID: 1867034412}
 --- !u!64 &1948116589
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -26343,6 +26359,10 @@ PrefabInstance:
       propertyPath: variantB
       value: 
       objectReference: {fileID: 788939655}
+    - target: {fileID: 5242192230265704246, guid: 0b4c94526d032c04883df429cceae856, type: 3}
+      propertyPath: moveSpeed
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 5242192230265704246, guid: 0b4c94526d032c04883df429cceae856, type: 3}
       propertyPath: swapAction
       value: 
