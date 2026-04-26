@@ -22,7 +22,7 @@ public class StatueMovement : MonoBehaviour
         else
         {
             agent.velocity = Vector3.zero;
-            agent.ResetPath();
+            // agent.ResetPath();
         }
     }
     public void SetStatueTarget(Transform t)

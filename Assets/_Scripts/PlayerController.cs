@@ -39,9 +39,15 @@ public class PlayerController : MonoBehaviour
     
     private bool isAlternateRealm = false;
 
+
+    public Animator magicianAnimator;
+    public Animator rabbitAnimator;
+    private Animator currentAnimator;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        currentAnimator = magicianAnimator;
     }
 
     void EnableMovement()
@@ -120,6 +126,11 @@ public class PlayerController : MonoBehaviour
         if (moveDirection != Vector3.zero)
         {
             gameObject.transform.forward = moveDirection;
+            currentAnimator.SetBool("IsWalking", true);
+        }
+        else
+        {
+            currentAnimator.SetBool("IsWalking", false);
         }
 
         controller.Move(moveDirection * moveSpeed * Time.deltaTime);
@@ -172,13 +183,16 @@ public class PlayerController : MonoBehaviour
         isAlternateRealm = !isAlternateRealm;
         if(isAlternateRealm)
         {
+            //Tutorial World switch triggers            
+
+
             //Level 1 World switch triggers
             DancingPuzzle.instance.HideSteps();
             DancingStatue.instance.Dance();
 
             //Level 2 World switch triggers
-            // StatueController.instance.EnableAllStatues();
-            // RabbitPathwaysManager.instance.DisableWalls();
+            StatueController.instance.EnableAllStatues();
+            RabbitPathwaysManager.instance.DisableWalls();
         }
         else
         {
@@ -187,13 +201,18 @@ public class PlayerController : MonoBehaviour
             DancingStatue.instance.StopDancing();
 
             //Level 2 World switch triggers
-            // StatueController.instance.DisableAllStatues();
-            // RabbitPathwaysManager.instance.EnableWalls();
+            StatueController.instance.DisableAllStatues();
+            RabbitPathwaysManager.instance.EnableWalls();
         }
+
+
 
         // Toggle the visual models
         if (variantA != null) variantA.SetActive(!isAlternateRealm);
         if (variantB != null) variantB.SetActive(isAlternateRealm);
+
+        // Toggle the animators
+        currentAnimator = isAlternateRealm ? rabbitAnimator : magicianAnimator;
 
         // Toggle the black and white screen effect
         if (blackAndWhiteVolume != null) blackAndWhiteVolume.SetActive(isAlternateRealm);

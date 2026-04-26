@@ -19,6 +19,7 @@ public class DancingStatue : MonoBehaviour
     }
     public void StopDancing()
     {
+        animator.StopPlayback();
         gameObject.SetActive(false);
     }
 
