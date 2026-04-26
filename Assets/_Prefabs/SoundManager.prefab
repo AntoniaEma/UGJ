@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3273764608159922282
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 779098165976301152}
+  - component: {fileID: 3199347160892669380}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &779098165976301152
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3273764608159922282}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -168.83592, y: 10.37078, z: -45.44402}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3199347160892669380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3273764608159922282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acaca4e78870da741a7a78ee9d782e58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundManager
+  swapToRabbitSFX: {fileID: 8300000, guid: af63c5fe2e469fc4d9a8640b59348013, type: 3}
+  swapToMagicianSFX: {fileID: 8300000, guid: af63c5fe2e469fc4d9a8640b59348013, type: 3}
+  swapVolume: 1
+  statueDanceSong: {fileID: 8300000, guid: f6c6c8f39abbee34bb34fae65b1b485f, type: 3}
+  statueDanceVolume: 0.6
+  demonChaseLoop: {fileID: 8300000, guid: 050dcfc8a15f1a54cab5671c645cd833, type: 3}
+  demonChaseVolume: 0.7
+  rabbitWhisperLoop: {fileID: 8300000, guid: 7490389e10b97994cb6dc9ae6c1cd739, type: 3}
+  rabbitWhisperVolume: 0.4
+  ringCollectSFX: {fileID: 8300000, guid: 40f6431ec444e414e928184214fbd060, type: 3}
+  ringCollectVolume: 1
+  magicianFootstep: {fileID: 0}
+  magicianJump: {fileID: 0}
+  magicianSoundVolume: 0.8
+  rabbitFootstep: {fileID: 0}
+  rabbitJump: {fileID: 0}
+  rabbitSoundVolume: 0.6
+  tileSlideSFX: {fileID: 8300000, guid: 673dfeb70869fce4a9fa5bd8a44a33a3, type: 3}
+  tileSlideVolume: 0.9
