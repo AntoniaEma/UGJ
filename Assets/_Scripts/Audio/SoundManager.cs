@@ -10,6 +10,7 @@ public class SoundManager : MonoBehaviour
     public static SoundManager instance { get; private set; }
 
     // ── Runtime AudioSources (created in Awake, no prefab setup needed) ──────
+    private AudioSource bgMusicSource;  // looping menu / story music (persists across scenes)
     private AudioSource musicSource;    // looping statue dance song
     private AudioSource chaseSource;    // looping demon chase tension
     private AudioSource ambientSource;  // looping rabbit whispers
@@ -17,6 +18,11 @@ public class SoundManager : MonoBehaviour
     private AudioSource sfxSource;      // all other one-shots
 
     // ── Inspector clips & volumes ─────────────────────────────────────────────
+
+    [Header("Background / Menu Music")]
+    [Tooltip("Looping music that starts on the main menu and continues through the story screen.")]
+    [SerializeField] private AudioClip menuMusicClip;
+    [SerializeField] [Range(0f, 1f)] private float menuMusicVolume = 0.5f;
 
     [Header("Realm Swap")]
     [Tooltip("Sound when switching from magician → rabbit form.")]
@@ -86,6 +92,7 @@ public class SoundManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
 
+        bgMusicSource  = CreateSource("BGMusicSource",  loop: true);
         musicSource    = CreateSource("MusicSource",    loop: true);
         chaseSource    = CreateSource("ChaseSource",    loop: true);
         ambientSource  = CreateSource("AmbientSource",  loop: true);
@@ -102,6 +109,18 @@ public class SoundManager : MonoBehaviour
         src.playOnAwake = false;
         return src;
     }
+
+    // ── Background / Menu Music ───────────────────────────────────────────────
+
+    public void PlayMenuMusic()
+    {
+        if (menuMusicClip == null || bgMusicSource.isPlaying) return;
+        bgMusicSource.clip   = menuMusicClip;
+        bgMusicSource.volume = menuMusicVolume;
+        bgMusicSource.Play();
+    }
+
+    public void StopMenuMusic() => bgMusicSource.Stop();
 
     // ── Realm Swap ────────────────────────────────────────────────────────────
 

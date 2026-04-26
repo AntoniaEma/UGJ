@@ -1,0 +1,62 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+
+/// <summary>
+/// Displays a full-screen story image between the main menu and the game.
+/// Drag your story picture onto the Story Image field in the Inspector.
+/// Click anywhere, press Space, or press Enter to continue.
+/// </summary>
+public class StoryScreen : MonoBehaviour
+{
+    [Tooltip("Drag your story/lore picture (Sprite) here.")]
+    [SerializeField] private Sprite storySprite;
+
+    [Tooltip("The UI Image component that will display the picture.")]
+    [SerializeField] private Image displayImage;
+
+    [Tooltip("TextMeshPro text that shows the hint. E.g. 'Click anywhere to continue'.")]
+    [SerializeField] private TMP_Text hintText;
+
+    [Tooltip("How fast the hint text pulses in and out.")]
+    [SerializeField] private float pulseSpeed = 1.5f;
+
+    [Tooltip("Name of the gameplay scene to load when the player continues.")]
+    [SerializeField] private string gameSceneName = "SampleScene 1";
+
+    void Start()
+    {
+        if (displayImage != null && storySprite != null)
+            displayImage.sprite = storySprite;
+
+        if (hintText != null)
+            hintText.text = "Click anywhere or press Space to continue";
+    }
+
+    void Update()
+    {
+        // Pulse the hint text alpha so it draws attention.
+        if (hintText != null)
+        {
+            float alpha = Mathf.Abs(Mathf.Sin(Time.time * pulseSpeed));
+            Color c = hintText.color;
+            c.a = alpha;
+            hintText.color = c;
+        }
+
+        // Any click anywhere on the screen, or Space / Enter, continues.
+        if (Input.GetMouseButtonDown(0) ||
+            Input.GetKeyDown(KeyCode.Space) ||
+            Input.GetKeyDown(KeyCode.Return))
+        {
+            Continue();
+        }
+    }
+
+    public void Continue()
+    {
+        SoundManager.instance?.StopMenuMusic();
+        SceneManager.LoadScene(gameSceneName);
+    }
+}
