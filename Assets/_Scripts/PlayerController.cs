@@ -178,7 +178,8 @@ public class PlayerController : MonoBehaviour
             isDashing = true;
             dashTime = Time.time;
             lastDashTime = Time.time;
-            velocity.y = 0f; 
+            velocity.y = 0f;
+            SoundManager.instance?.PlayDash();
         }
     }
 
@@ -186,10 +187,14 @@ public class PlayerController : MonoBehaviour
 
     void SwitchWorlds()
     {
+        // Play the swap sound immediately — before any visuals change — so it
+        // never lags behind the transition effect.
+        if (!isAlternateRealm) SoundManager.instance?.PlaySwapToRabbit();
+        else                   SoundManager.instance?.PlaySwapToMagician();
+
         isAlternateRealm = !isAlternateRealm;
         if(isAlternateRealm)
         {
-            SoundManager.instance?.PlaySwapToRabbit();
 
             //Level 1 World switch triggers
             DancingPuzzle.instance.HideSteps();
@@ -207,8 +212,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            SoundManager.instance?.PlaySwapToMagician();
-
             //Level 1 world switch triggers
             DancingPuzzle.instance.RevealSteps();
             DancingStatue.instance.StopDancing();

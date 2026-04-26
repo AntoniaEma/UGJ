@@ -59,6 +59,16 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip rabbitJump;
     [SerializeField] [Range(0f, 1f)] private float rabbitSoundVolume = 0.6f;
 
+    [Header("Dash")]
+    [Tooltip("One-shot played when the player dashes.")]
+    [SerializeField] private AudioClip dashSFX;
+    [SerializeField] [Range(0f, 1f)] private float dashVolume = 0.9f;
+
+    [Header("Tutorial Paintings")]
+    [Tooltip("Sound played each time a painting is correctly placed in the tutorial.")]
+    [SerializeField] private AudioClip paintingPlaceSFX;
+    [SerializeField] [Range(0f, 1f)] private float paintingPlaceVolume = 1f;
+
     [Header("Slide Puzzle")]
     [Tooltip("Short click/slide played each time a puzzle tile moves.")]
     [SerializeField] private AudioClip tileSlideSFX;
@@ -167,7 +177,13 @@ public class SoundManager : MonoBehaviour
     {
         AudioClip clip = isRabbit ? rabbitFootstep : magicianFootstep;
         float     vol  = isRabbit ? rabbitSoundVolume : magicianSoundVolume;
-        if (clip != null) footstepSource.PlayOneShot(clip, vol);
+        if (clip == null) return;
+
+        // Use Play() instead of PlayOneShot so each step interrupts the previous
+        // one — prevents footstep sounds stacking on top of each other.
+        footstepSource.clip   = clip;
+        footstepSource.volume = vol;
+        footstepSource.Play();
     }
 
     // ── Jump ──────────────────────────────────────────────────────────────────
@@ -178,6 +194,22 @@ public class SoundManager : MonoBehaviour
         AudioClip clip = isRabbit ? rabbitJump : magicianJump;
         float     vol  = isRabbit ? rabbitSoundVolume : magicianSoundVolume;
         if (clip != null) sfxSource.PlayOneShot(clip, vol);
+    }
+
+    // ── Dash ──────────────────────────────────────────────────────────────────
+
+    public void PlayDash()
+    {
+        if (dashSFX != null)
+            sfxSource.PlayOneShot(dashSFX, dashVolume);
+    }
+
+    // ── Tutorial Paintings ────────────────────────────────────────────────────
+
+    public void PlayPaintingPlace()
+    {
+        if (paintingPlaceSFX != null)
+            sfxSource.PlayOneShot(paintingPlaceSFX, paintingPlaceVolume);
     }
 
     // ── Slide Puzzle ──────────────────────────────────────────────────────────
