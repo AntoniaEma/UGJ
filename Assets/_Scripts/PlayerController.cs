@@ -39,11 +39,17 @@ public class PlayerController : MonoBehaviour
     private float lastDashTime;
     private bool isAlternateRealm = false;
 
+
+    public Animator magicianAnimator;
+    public Animator rabbitAnimator;
+    private Animator currentAnimator;
+
     private Camera mainCamera;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        currentAnimator = magicianAnimator;
         mainCamera = Camera.main;
     }
 
@@ -131,6 +137,11 @@ public class PlayerController : MonoBehaviour
         if (moveDirection != Vector3.zero)
         {
             gameObject.transform.forward = moveDirection;
+            currentAnimator.SetBool("IsWalking", true);
+        }
+        else
+        {
+            currentAnimator.SetBool("IsWalking", false);
         }
 
         controller.Move(moveDirection * moveSpeed * Time.deltaTime);
@@ -163,13 +174,16 @@ public class PlayerController : MonoBehaviour
         isAlternateRealm = !isAlternateRealm;
         if(isAlternateRealm)
         {
+            //Tutorial World switch triggers            
+
+
             //Level 1 World switch triggers
             DancingPuzzle.instance.HideSteps();
             DancingStatue.instance.Dance();
 
             //Level 2 World switch triggers
-            // StatueController.instance.EnableAllStatues();
-            // RabbitPathwaysManager.instance.DisableWalls();
+            StatueController.instance.EnableAllStatues();
+            RabbitPathwaysManager.instance.DisableWalls();
 
             //Slide puzzle — reveal image in rabbit form
             SlidePuzzle.instance?.ShowImages();
@@ -181,15 +195,19 @@ public class PlayerController : MonoBehaviour
             DancingStatue.instance.StopDancing();
 
             //Level 2 World switch triggers
-            // StatueController.instance.DisableAllStatues();
-            // RabbitPathwaysManager.instance.EnableWalls();
-
+            StatueController.instance.DisableAllStatues();
+            RabbitPathwaysManager.instance.EnableWalls();
             //Slide puzzle — hide image in magician form
             SlidePuzzle.instance?.HideImages();
         }
 
+        // Toggle the visual models
         if (variantA != null) variantA.SetActive(!isAlternateRealm);
         if (variantB != null) variantB.SetActive(isAlternateRealm);
+        currentAnimator = isAlternateRealm ? rabbitAnimator : magicianAnimator;
+        // Toggle the animators
+
+
         if (blackAndWhiteVolume != null) blackAndWhiteVolume.SetActive(isAlternateRealm);
     }
 

@@ -9,7 +9,7 @@ public class Level1Puzzle : Level
     {
         GameManager.instance.gameLevels.Add(this);
         transform.SetParent(GameManager.instance.transform);
-        UnlockLevel();
+        ringPiece.SetActive(false);
     }
 
 
