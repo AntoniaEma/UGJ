@@ -194,6 +194,7 @@ public class PlayerController : MonoBehaviour
         else                   SoundManager.instance?.PlaySwapToMagician();
 
         isAlternateRealm = !isAlternateRealm;
+        PaintingManager.instance.SwitchRealms();
         if(isAlternateRealm)
         {
 

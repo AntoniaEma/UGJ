@@ -15,6 +15,11 @@ public class Painting : MonoBehaviour
             PaintingManager.instance.SubmitPainting(this);
         }
     }
+    public void TogglePaintingLight()
+    {
+        Light light = transform.GetChild(0).gameObject.GetComponent<Light>();
+        light.enabled = !light.isActiveAndEnabled;
+    }
     public void SubmitPainting()
     {
         //Logic for Flying painting
