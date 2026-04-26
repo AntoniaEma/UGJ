@@ -1365,6 +1365,7 @@ MonoBehaviour:
   mainPanel: {fileID: 1886247865}
   instructionsPanel: {fileID: 131301485}
   settingsPanel: {fileID: 250557637}
+  storySceneName: StoryScene
 --- !u!4 &863257356
 Transform:
   m_ObjectHideFlags: 0

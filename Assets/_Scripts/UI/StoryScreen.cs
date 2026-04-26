@@ -46,7 +46,6 @@ public class StoryScreen : MonoBehaviour
 
     public void Continue()
     {
-        SoundManager.instance?.StopMenuMusic();
         SceneManager.LoadScene(gameSceneName);
     }
 }
